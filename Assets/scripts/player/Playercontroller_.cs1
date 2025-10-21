@@ -1,0 +1,120 @@
+﻿using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.UI;
+
+public class Playercontroller : MonoBehaviour {
+	
+	public Transform groundCheck_point;
+	public float groundCheck_radius;
+	public LayerMask ground_layer;
+	public GameObject spawnpoint;	
+	private bool IsItGround;
+	public GameObject light;
+	public GameObject task_message;
+	public GameObject slot;	
+	public float speed = 10f;
+	public Rigidbody2D rb;
+	public bool faceRight = true;
+	//sounds
+//	public AudioClip jump_snd;
+	public float volume = 0.5f;
+	// Use this for initialization
+	void Start (){
+		rb = GetComponent <Rigidbody2D> ();
+		Cursor.visible = false;		//Отключение курсора при старте игры
+		light.SetActive(false);		//Отключение фонаря при старте игры
+	}
+	
+
+	void Update () {
+		IsItGround = Physics2D.OverlapCircle(groundCheck_point.position,groundCheck_radius,ground_layer);	
+		//Проверка на земле ли персонаж?
+		float moveX = Input.GetAxis ("Horizontal");
+		rb.MovePosition (rb.position + Vector2.right * moveX * speed * Time.deltaTime);
+		//Перемещение персонажа
+		if (Input.GetKeyDown (KeyCode.Space) && IsItGround)
+			rb.AddForce (Vector2.up * 11000);
+		//Прыжок персонажа
+		if (moveX > 0 && !faceRight)
+			flip ();	//Персонаж смотрит вправо
+		else if (moveX < 0 && faceRight)
+			flip ();	//Персонаж смотрит влево
+		
+}
+
+	public void Pause()
+	{
+		if (Time.timeScale == 1)	//Ставим на паузу, если игра не находится на паузе, если игра на паузе возобновляем игру
+		{
+			Time.timeScale = 0;
+		}
+		else if (Time.timeScale == 0)
+		{
+			Time.timeScale = 1;
+		}
+	}
+	
+	public void JustJump()		//Не используется, так как для мобильной версии, управление тачем
+	{
+		if (IsItGround == true)
+			rb.AddForce (Vector2.up * 11000);
+	}
+	
+	public void Current_Task()	//Скрипт вывода задания
+	{
+		if (IsItGround == true)
+			Instantiate(task_message, transform.position, Quaternion.identity);
+	}
+	
+	public void TurnLeft()	//Не используется, так как для мобильной версии, управление тачем
+	{		
+			if (!faceRight)
+			{
+			rb.AddForce (Vector2.left * 155000 * Time.deltaTime);
+			}	else
+			{
+				flip();
+			}
+	}
+	
+	public void TurnRight()	//Не используется, так как для мобильной версии, управление тачем
+	{		
+			if (faceRight)
+			{
+			rb.AddForce (Vector2.right * 155000 * Time.deltaTime);
+			}	else
+			{
+				flip();
+			}
+	}
+	
+	
+	public void unstuck()	// Если персонаж застрял, телепорт в начало уровня к точке спавна
+	{
+		if (IsItGround == true)
+			print("I'M STUCK!1111");
+			rb.transform.position = spawnpoint.transform.position;
+	}
+	
+	public void flashlight()
+	{
+			light.SetActive(true);
+			Invoke ("flashlight2", 1.0f);
+	}
+	
+	public void Small()
+	{
+			print("IT WORKS");
+	}
+	
+	public void flashlight2()
+	{
+			light.SetActive(false);
+	}
+	
+	public void flip () {	//Перевернуть персонажа
+		faceRight = !faceRight;
+		transform.localScale = new Vector3 (transform.localScale.x * -1, transform.localScale.y, transform.localScale.z);
+	}	
+}
